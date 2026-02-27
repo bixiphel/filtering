@@ -49,6 +49,7 @@ int main(int argc, char **argv)
   }
   ReadPGM(fp);
  
+  // -----------------------------
   // --Gaussian filter goes here--
 
   // Instantiate variables for Gaussian function
@@ -68,8 +69,9 @@ int main(int argc, char **argv)
     exit(1);
   }
 
-  // Instantiate output buffer
+  // Instantiate output buffer; allocates memory and copies the original image
   unsigned char *output = malloc(xdim * ydim);
+  memcpy(output, image, xdim * ydim);
 
   // Create kernel buffer 
   double **kernel = malloc(kSize * sizeof(double*));
@@ -100,7 +102,13 @@ int main(int argc, char **argv)
       printf("Normalized value at (%d, %d): %f\n\n", i, j, kernel[i][j]);
     }
   }
+  
 
+  // Copy output buffer to input buffer and free memory
+  memcpy(image, output, xdim * ydim); 
+  free(output);
+
+  //-------------------------------
   /* Begin writing PGM.... */
   printf("Begin writing PGM.... \n");
   if ((fp=fopen(argv[2], "wb")) == NULL){
