@@ -50,7 +50,23 @@ int main(int argc, char **argv)
   ReadPGM(fp);
  
   // --Gaussian filter goes here--
-  
+
+  // Instantiate variables for Gaussian function
+  int kSize = atoi(argv[3]);
+  double sigma = atof(argv[4]);
+
+  // Verify that user-specified parameters are valid
+  if(kSize % 2 == 0) {
+    printf("Kernel size must be odd.\n");
+    exit(1);
+  } else if(kSize <= 0) {
+    printf("Kernel size must be positive.\n");
+    exit(1);
+  } else if(sigma <= 0) {
+    printf("Sigma must be positive.\n");
+    exit(1);
+  }
+
   // Instantiate output buffer
   unsigned char *output = malloc(xdim * ydim);
 
