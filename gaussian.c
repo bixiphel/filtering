@@ -54,6 +54,7 @@ int main(int argc, char **argv)
   // Instantiate variables for Gaussian function
   int kSize = atoi(argv[3]);
   double sigma = atof(argv[4]);
+  int radius = kSize / 2;
 
   // Verify that user-specified parameters are valid
   if(kSize % 2 == 0) {
@@ -70,8 +71,35 @@ int main(int argc, char **argv)
   // Instantiate output buffer
   unsigned char *output = malloc(xdim * ydim);
 
- 
+  // Create kernel buffer 
+  double **kernel = malloc(kSize * sizeof(double*));
+  for(int i = 0; i < kSize; i++) {
+    kernel[i] = malloc(kSize * sizeof(double));
+  }
 
+  // Build the kernel
+  double sum = 0.0f; // instantiated to help normalize the weights after the kernel is built
+
+  for(int y = -radius; y <= radius; y++) {
+    for(int x = -radius; x <= radius; x++) {
+      double distance = sqrt(x*x + y*y);
+      double val = exp(-(distance*distance)/(2*sigma*sigma));
+
+      kernel[y+radius][x+radius] = val;
+      sum += val;
+    }
+  }
+
+  // Normalize the kernel
+  for(int i = 0; i < kSize; i++) {
+    for(int j = 0; j < kSize; j++) {
+      printf("Value at (%d, %d): %f\n", i, j, kernel[i][j]);
+      kernel[i][j] /= sum;
+
+      // TESTING PURPOSES; DELETE THIS BEFORE SUBMISSION
+      printf("Normalized value at (%d, %d): %f\n\n", i, j, kernel[i][j]);
+    }
+  }
 
   /* Begin writing PGM.... */
   printf("Begin writing PGM.... \n");
