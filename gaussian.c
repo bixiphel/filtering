@@ -31,10 +31,12 @@ int main(int argc, char **argv)
   int i, j;
   FILE *fp;
 
-  if (argc != 3){
+  if (argc != 5){
     printf("Usage: MyProgram <input_ppm> <output_ppm> \n");
     printf("       <input_ppm>: PGM file \n");
     printf("       <output_ppm>: PGM file \n");
+    printf("       <kernel_size>: (odd) integer kernel size (m * m) \n");
+    printf("       <sigma>: sigma (standard deviation) of Gaussian function \n");
     exit(0);              
   }
 
