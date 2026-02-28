@@ -83,7 +83,7 @@ Bilateral filtering:
 
 ## Compilation
 
-Both programs require linking with the math library (this is due to using the `exp` and `sqrt` functions), which aren't natively included in the `gcc` command):
+Both programs require linking with the math library (this is due to using the `exp` and `sqrt` functions, which aren't natively included in the `gcc` command):
 
 ```bash
 gcc gaussian.c -o gaussian -lm
