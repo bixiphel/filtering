@@ -73,6 +73,14 @@ Bilateral filtering:
 
 ---
 
+## Example Output Comparison
+
+| Original Image | Gaussian Filter (kernel = 5x5, σ = 2.1) | Bilateral Filter (kernel = 5x5, σ_s = σ_i = 32000) |
+| -------------- | --------------------------------------- | -------------------------------------------------- |
+| test | !(images/output_gauss.png) | !(images/output_bi.png) | 
+
+---
+
 ## Compilation
 
 Both programs require linking with the math library:
@@ -96,8 +104,9 @@ General instruction:
 Example:
 
 ```bash
-./gaussian image.pgm gaussian_out.pgm 5 1.5
+./gaussian image.pgm gaussian_out.pgm 5 2.1
 ```
+
 
 #### Notes
 * `kernel_size` must be an odd positive integer (i.e. `3`, `5`, `131`)
