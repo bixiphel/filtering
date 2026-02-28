@@ -53,9 +53,10 @@ int main(int argc, char **argv)
   // -----------------------------
   // --Gaussian filter goes here--
 
-  // Instantiate variables for Gaussian function
+  // Instantiate variables for bilateral filtering 
   int kSize = atoi(argv[3]);
-  double sigma = atof(argv[4]);
+  double sigma_s = atof(argv[4]);
+  double sigma_i = atof(argv[5]);
   int radius = kSize / 2;
 
   // Verify that user-specified parameters are valid
@@ -65,10 +66,10 @@ int main(int argc, char **argv)
   } else if(kSize <= 0) {
     printf("Kernel size must be positive.\n");
     exit(1);
-  } else if(sigma <= 0.0f) {
+  } else if(sigma_s <= 0.0f || sigma_i <= 0.0f;) {
     printf("Sigma must be a non-zero positive number.\n");
     exit(1);
-  }
+  } 
 
   // Instantiate output buffer; allocates memory and copies the original image
   unsigned char *output = malloc(xdim * ydim);
