@@ -16,7 +16,6 @@ when you use this function.
 #define max(x, y) ((x>y) ? (x):(y))
 #define min(x, y) ((x<y) ? (x):(y))
 
-
 int xdim;
 int ydim;
 int maxraw;
@@ -25,19 +24,20 @@ unsigned char *image;
 void ReadPGM(FILE*);
 void WritePGM(FILE*);
 
-
 int main(int argc, char **argv)
 {
   int i, j;
   FILE *fp;
 
-  if (argc != 3){
+  if (argc != 6){
     printf("Usage: MyProgram <input_ppm> <output_ppm> \n");
     printf("       <input_ppm>: PGM file \n");
     printf("       <output_ppm>: PGM file \n");
+    printf("       <kernel_size>: (odd) integer kernel size (m * m) \n");
+    printf("       <sigma_space>: spatial sigma (standard deviation in the spatial domain) \n");
+    printf("       <sigma_intensity>: intensity sigma (standard deviation in the intensity domain) \n");
     exit(0);              
   }
-
 
   /* begin reading PGM.... */
   printf("begin reading PGM.... \n");
@@ -47,13 +47,79 @@ int main(int argc, char **argv)
   }
   ReadPGM(fp);
  
-  // your application here 
-  // As an example, let's just make an inversion of the input image.
-  for (j=0; j<ydim; j++)
-    for (i=0; i<xdim; i++) {
-      image[j*xdim+i] = 255 - image[j*xdim+i];
+  // -----------------------------
+  // Bilateral Filter
+
+  // Instantiate variables for bilateral filtering 
+  int kSize = atoi(argv[3]);
+  double sigma_s = atof(argv[4]);
+  double sigma_i = atof(argv[5]);
+  int radius = kSize / 2;
+
+  // Verify that user-specified parameters are valid
+  if(kSize % 2 == 0) {
+    printf("Kernel size must be odd.\n");
+    exit(1);
+  } else if(kSize <= 0) {
+    printf("Kernel size must be positive.\n");
+    exit(1);
+  } else if(sigma_s <= 0.0f || sigma_i <= 0.0f) {
+    printf("Sigma must be a non-zero positive number.\n");
+    exit(1);
+  } 
+
+  // Instantiate output buffer; allocates memory and copies the original image
+  unsigned char *output = malloc(xdim * ydim);
+  memcpy(output, image, xdim * ydim);
+ 
+  // Perform bilateral convolution 
+  for (j = 0; j < ydim; j++) {
+    for (i = 0; i < xdim; i++) {
+      // Loop over every pixel in teh original image
+
+      // 'weightedSum' is used to normalize the pixel at each pixel (since bilateral filtering isn't linear)
+      double weightedSum = 0.0f;
+      double weightedTotal = 0.0f;
+      int center = image[j * xdim + i];
+        
+        // Loop over every pixel in the kernel; perform zero-padding if needed
+        for (int kernel_y = -radius; kernel_y <= radius; kernel_y++) {
+          for (int kernel_x = -radius; kernel_x <= radius; kernel_x++) {
+            // Instantiate neighbor variables to check if the pixel goes outside the image
+	    int out_x = i + kernel_x;
+            int out_y = j + kernel_y;
+
+            // If the pixel goes outside the image, "pretend" the pixel has a value of 0 (zero-padding)
+            int neighbor = 0;
+            if (out_x >= 0 && out_x < xdim && out_y >= 0 && out_y < ydim) {
+                    neighbor = image[out_y * xdim + out_x];
+            }
+            
+            // Calculate the spatial weight
+	    double spatial = exp(-(kernel_x * kernel_x + kernel_y * kernel_y) / (2 * sigma_s * sigma_s));
+
+	    // Calculate the intensity weight
+	    double intensity = exp(-((neighbor - center) * (neighbor - center)) / (2 * sigma_i * sigma_i));
+
+	    // Calculate combined weight
+	    double weight = spatial * intensity;
+
+	    // Update weighted values
+	    weightedSum += weight * neighbor;
+	    weightedTotal += weight;
+          }
+        }
+
+	// Assign (i, j)-th pixel in the output image to the result of the convolution
+        output[j*xdim + i] = (unsigned char)(weightedSum / weightedTotal);
     }
-  
+  }
+
+  // Copy output buffer to input buffer and free memory
+  memcpy(image, output, xdim * ydim); 
+  free(output);
+
+  //-------------------------------
   /* Begin writing PGM.... */
   printf("Begin writing PGM.... \n");
   if ((fp=fopen(argv[2], "wb")) == NULL){
