@@ -64,8 +64,8 @@ int main(int argc, char **argv)
   } else if(kSize <= 0) {
     printf("Kernel size must be positive.\n");
     exit(1);
-  } else if(sigma <= 0) {
-    printf("Sigma must be positive.\n");
+  } else if(sigma <= 0.0f) {
+    printf("Sigma must be a non-zero positive number.\n");
     exit(1);
   }
 
@@ -102,8 +102,27 @@ int main(int argc, char **argv)
       printf("Normalized value at (%d, %d): %f\n\n", i, j, kernel[i][j]);
     }
   }
-  
+ 
+  // Perform convolution of original image with kernel 
+  for (j = radius; j < ydim - radius; j++) {
+    for (i = radius; i < xdim - radius; i++) {
+      // Loop over every pixel in teh original image
 
+      // 'Total' is the combined weight of each neighbor in the kernel
+      double total = 0.0f;
+        
+        // Loop over every pixel in the kernel
+        for (int kernel_y = -radius; kernel_y <= radius; kernel_y++) {
+          for (int kernel_x = -radius; kernel_x <= radius; kernel_x++) {
+            // Performs the convolution
+            total += kernel[kernel_y + radius][kernel_x + radius] * image[(j + kernel_y) * xdim + (i + kernel_x)];
+          }
+        }
+	// Assign (i, j)-th pixel in the output image to the result of the convolution
+        output[j*xdim + i] = (unsigned char)total;
+    }
+  }
+ 
   // Copy output buffer to input buffer and free memory
   memcpy(image, output, xdim * ydim); 
   free(output);
