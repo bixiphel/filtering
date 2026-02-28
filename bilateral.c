@@ -63,7 +63,7 @@ int main(int argc, char **argv)
   } else if(kSize <= 0) {
     printf("Kernel size must be positive.\n");
     exit(1);
-  } else if(sigma_s <= 0.0f || sigma_i <= 0.0f;) {
+  } else if(sigma_s <= 0.0f || sigma_i <= 0.0f) {
     printf("Sigma must be a non-zero positive number.\n");
     exit(1);
   } 
