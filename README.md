@@ -77,7 +77,7 @@ Bilateral filtering:
 
 | Original Image | Gaussian Filter (kernel = 5x5, σ = 2.1) | Bilateral Filter (kernel = 5x5, σ_s = σ_i = 32000) |
 | -------------- | --------------------------------------- | -------------------------------------------------- |
-| test | <src="https://github.com/bixiphel/filtering/blob/0298b236e47ec9199441679dd7b83da08b20cab8/example%20outputs/output_gauss.png"> | <src="https://github.com/bixiphel/filtering/blob/0298b236e47ec9199441679dd7b83da08b20cab8/example%20outputs/output_bi.png"> | 
+| test | <src="https://github.com/bixiphel/filtering/blob/0298b236e47ec9199441679dd7b83da08b20cab8/example%20outputs/output_gauss.png" /> | <src="https://github.com/bixiphel/filtering/blob/0298b236e47ec9199441679dd7b83da08b20cab8/example%20outputs/output_bi.png" /> | 
 
 ---
 
