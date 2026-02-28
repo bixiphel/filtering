@@ -74,40 +74,17 @@ int main(int argc, char **argv)
   // Instantiate output buffer; allocates memory and copies the original image
   unsigned char *output = malloc(xdim * ydim);
   memcpy(output, image, xdim * ydim);
-
-  // Create kernel buffer 
-  double **kernel = malloc(kSize * sizeof(double*));
-  for(int i = 0; i < kSize; i++) {
-    kernel[i] = malloc(kSize * sizeof(double));
-  }
-
-  // Build the kernel
-  double sum = 0.0f; // instantiated to help normalize the weights after the kernel is built
-
-  for(int y = -radius; y <= radius; y++) {
-    for(int x = -radius; x <= radius; x++) {
-      double distance = sqrt(x*x + y*y);
-      double val = exp(-(distance*distance)/(2*sigma*sigma));
-
-      kernel[y+radius][x+radius] = val;
-      sum += val;
-    }
-  }
-
-  // Normalize the kernel
-  for(int i = 0; i < kSize; i++) {
-    for(int j = 0; j < kSize; j++) {
-      kernel[i][j] /= sum;
-    }
-  }
  
-  // Perform convolution of original image with kernel 
+  // Perform bilateral convolution 
   for (j = 0; j < ydim; j++) {
     for (i = 0; i < xdim; i++) {
       // Loop over every pixel in teh original image
 
-      // 'Total' is the combined weight of each neighbor in the kernel
-      double total = 0.0f;
+      double weightedTotal = 0.0f;
+
+      // 'weightedSum' is used to normalize the pixel at each pixel (since bilateral filtering isn't linear)
+      double weightedSum = 0.0f;
+      int center = image[j * xdim + i];
         
         // Loop over every pixel in the kernel; perform zero-padding if needed
         for (int kernel_y = -radius; kernel_y <= radius; kernel_y++) {
@@ -120,14 +97,25 @@ int main(int argc, char **argv)
             int neighbor = 0;
             if (out_x >= 0 && out_x < xdim && out_y >= 0 && out_y < ydim) {
                     neighbor = image[out_y * xdim + out_x];
-            }	    
+            }
+            
+            // Calculate the spatial weight
+	    double spatial = exp(-(kernel_x * kernel_x + kernel_y * kernel_y) / (2 * sigma_s * sigma_s));
 
-	    // Performs the convolution
-            total += kernel[kernel_y + radius][kernel_x + radius] * image[(j + kernel_y) * xdim + (i + kernel_x)];
+	    // Calculate the intensity weight
+	    double intensity = exp(-((neighbor - center) * (neighbor - center)) / (2 * sigma_i * sigma_i));
+
+	    // Calculate combined weight
+	    double weight = spatial * intensity;
+
+	    // Update weighted values
+	    weightedSum += weight * neighbor;
+	    weightedTotal += weight;
           }
         }
+
 	// Assign (i, j)-th pixel in the output image to the result of the convolution
-        output[j*xdim + i] = (unsigned char)total;
+        output[j*xdim + i] = (unsigned char)(weightedSum / weightedTotal);
     }
   }
 
