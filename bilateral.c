@@ -16,7 +16,6 @@ when you use this function.
 #define max(x, y) ((x>y) ? (x):(y))
 #define min(x, y) ((x<y) ? (x):(y))
 
-
 int xdim;
 int ydim;
 int maxraw;
@@ -24,7 +23,6 @@ unsigned char *image;
 
 void ReadPGM(FILE*);
 void WritePGM(FILE*);
-
 
 int main(int argc, char **argv)
 {
@@ -41,7 +39,6 @@ int main(int argc, char **argv)
     exit(0);              
   }
 
-
   /* begin reading PGM.... */
   printf("begin reading PGM.... \n");
   if ((fp=fopen(argv[1], "rb"))==NULL){
@@ -51,7 +48,7 @@ int main(int argc, char **argv)
   ReadPGM(fp);
  
   // -----------------------------
-  // --Gaussian filter goes here--
+  // Bilateral Filter
 
   // Instantiate variables for bilateral filtering 
   int kSize = atoi(argv[3]);
@@ -80,10 +77,9 @@ int main(int argc, char **argv)
     for (i = 0; i < xdim; i++) {
       // Loop over every pixel in teh original image
 
-      double weightedTotal = 0.0f;
-
       // 'weightedSum' is used to normalize the pixel at each pixel (since bilateral filtering isn't linear)
       double weightedSum = 0.0f;
+      double weightedTotal = 0.0f;
       int center = image[j * xdim + i];
         
         // Loop over every pixel in the kernel; perform zero-padding if needed
