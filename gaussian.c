@@ -95,26 +95,32 @@ int main(int argc, char **argv)
   // Normalize the kernel
   for(int i = 0; i < kSize; i++) {
     for(int j = 0; j < kSize; j++) {
-      printf("Value at (%d, %d): %f\n", i, j, kernel[i][j]);
       kernel[i][j] /= sum;
-
-      // TESTING PURPOSES; DELETE THIS BEFORE SUBMISSION
-      printf("Normalized value at (%d, %d): %f\n\n", i, j, kernel[i][j]);
     }
   }
  
   // Perform convolution of original image with kernel 
-  for (j = radius; j < ydim - radius; j++) {
-    for (i = radius; i < xdim - radius; i++) {
+  for (j = 0; j < ydim; j++) {
+    for (i = 0; i < xdim; i++) {
       // Loop over every pixel in teh original image
 
       // 'Total' is the combined weight of each neighbor in the kernel
       double total = 0.0f;
         
-        // Loop over every pixel in the kernel
+        // Loop over every pixel in the kernel; perform zero-padding if needed
         for (int kernel_y = -radius; kernel_y <= radius; kernel_y++) {
           for (int kernel_x = -radius; kernel_x <= radius; kernel_x++) {
-            // Performs the convolution
+            // Instantiate neighbor variables to check if the pixel goes outside the image
+	    int out_x = i + kernel_x;
+            int out_y = j + kernel_y;
+
+            // If the pixel goes outside the image, "pretend" the pixel has a value of 0 (zero-padding)
+            int neighbor = 0;
+            if (out_x >= 0 && out_x < xdim && out_y >= 0 && out_y < ydim) {
+                    neighbor = image[out_y * xdim + out_x];
+            }	    
+
+	    // Performs the convolution
             total += kernel[kernel_y + radius][kernel_x + radius] * image[(j + kernel_y) * xdim + (i + kernel_x)];
           }
         }
@@ -122,7 +128,7 @@ int main(int argc, char **argv)
         output[j*xdim + i] = (unsigned char)total;
     }
   }
- 
+
   // Copy output buffer to input buffer and free memory
   memcpy(image, output, xdim * ydim); 
   free(output);
